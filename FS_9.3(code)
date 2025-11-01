@@ -1,0 +1,69 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// ----------------------
+// Backend API endpoint
+// ----------------------
+app.get('/api', (req, res) => {
+    res.json({ message: "Hello from combined backend!" });
+});
+
+// ----------------------
+// Frontend (React) served by Express
+// ----------------------
+const frontendHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fullstack Combined App</title>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  // Simple React code without build tools
+  const e = React.createElement;
+  
+  function App() {
+    const [message, setMessage] = React.useState('Loading...');
+    
+    React.useEffect(() => {
+      fetch('/api')
+        .then(res => res.json())
+        .then(data => setMessage(data.message))
+        .catch(err => setMessage('Error: ' + err));
+    }, []);
+    
+    return e('div', { style: { textAlign: 'center', marginTop: '50px' } },
+      e('h1', null, 'Fullstack Combined App'),
+      e('p', null, message)
+    );
+  }
+  
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(e(App));
+</script>
+
+<!-- Load React & ReactDOM from CDN -->
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+</body>
+</html>
+`;
+
+// Serve frontend HTML for all other routes
+app.get('*', (req, res) => {
+    res.send(frontendHtml);
+});
+
+// Start server
+app.listen(PORT, () => console.log(`Fullstack app running on port ${PORT}`));
