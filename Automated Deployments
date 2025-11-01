@@ -1,0 +1,47 @@
+.github/workflows/deploy.yml
+name: FullStack AWS CICD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, Tag, Push Frontend Image
+        run: |
+          docker build -t frontend ./frontend
+          docker tag frontend:latest <ECR_URL>/fullstack-frontend:latest
+          docker push <ECR_URL>/fullstack-frontend:latest
+
+      - name: Build, Tag, Push Backend Image
+        run: |
+          docker build -t backend ./backend
+          docker tag backend:latest <ECR_URL>/fullstack-backend:latest
+          docker push <ECR_URL>/fullstack-backend:latest
+
+      - name: Deploy ECS Service
+        run: |
+          aws ecs update-service \
+          --cluster FullStackCluster \
+          --service FrontendService \
+          --force-new-deployment
+          aws ecs update-service \
+          --cluster FullStackCluster \
+          --service BackendService \
+          --force-new-deployment
