@@ -1,0 +1,5 @@
+DB_HOST=mydb.xxxx.us-east-1.rds.amazonaws.com
+DB_USER=admin
+DB_PASS=securePass123
+DB_NAME=appdb
+PORT=4000
