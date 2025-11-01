@@ -1,0 +1,1 @@
+Client → ALB → Frontend Container → Backend Service → RDS DB
