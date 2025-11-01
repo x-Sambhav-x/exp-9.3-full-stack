@@ -1,0 +1,7 @@
+aws ecr create-repository --repository-name fullstack-frontend
+aws ecr create-repository --repository-name fullstack-backend
+aws ecr get-login-password | docker login --username AWS --password-stdin <aws-account-id>.dkr.ecr.region.amazonaws.com
+
+docker build -t frontend .
+docker tag frontend:latest <url>/fullstack-frontend:latest
+docker push <url>/fullstack-frontend:latest
